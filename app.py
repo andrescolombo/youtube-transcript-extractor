@@ -421,23 +421,27 @@ def main():
     st.markdown(
         """
         <style>
-        .stApp {background-color: #0e1117;}
+        .stApp {background-color: #0b0f19;}
         .stat-card {
-            background: linear-gradient(145deg, #1a1d24, #22262e);
-            padding: 20px; border-radius: 12px; text-align: center;
-            border: 1px solid #2d3139;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            padding: 24px; border-radius: 16px; text-align: center;
+            border: 1px solid #334155;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease-in-out;
         }
-        .stat-card h4 {color: #a0a5b0; font-size: 0.85rem; margin-bottom: 5px;}
-        .stat-card .value {font-size: 1.8rem; font-weight: 700;}
-        .stat-card .value.total {color: #60a5fa;}
-        .stat-card .value.downloaded {color: #34d399;}
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-card h4 {color: #94a3b8; font-size: 0.9rem; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;}
+        .stat-card .value {font-size: 2.2rem; font-weight: 800; font-family: 'Inter', sans-serif;}
+        .stat-card .value.total {color: #38bdf8;}
+        .stat-card .value.downloaded {color: #4ade80;}
         .stat-card .value.skipped {color: #fbbf24;}
         .stat-card .value.errors {color: #f87171;}
         .console-box {
-            background: #0d1117; border: 1px solid #30363d; border-radius: 8px;
+            background: #020617; border: 1px solid #1e293b; border-radius: 12px;
             padding: 16px; font-family: 'Cascadia Code', 'Fira Code', monospace;
-            font-size: 0.82rem; color: #c9d1d9; max-height: 450px;
+            font-size: 0.85rem; color: #e2e8f0; max-height: 400px;
             overflow-y: auto; white-space: pre-wrap; line-height: 1.6;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
         }
         </style>
         """,
@@ -547,6 +551,10 @@ def main():
             placeholder="https://www.youtube.com/@canal  o  https://www.youtube.com/watch?v=...",
         )
 
+    # ── Callbacks ──
+    def request_stop():
+        st.session_state.stop_requested = True
+
     with col_buttons:
         st.markdown("<br>", unsafe_allow_html=True)
         btn_col1, btn_col2 = st.columns(2)
@@ -556,28 +564,32 @@ def main():
                 disabled=st.session_state.running,
             )
         with btn_col2:
-            stop_btn = st.button(
+            st.button(
                 "⏹️ Detener", use_container_width=True,
                 disabled=not st.session_state.running,
+                on_click=request_stop,
             )
 
-    if stop_btn:
-        st.session_state.stop_requested = True
+    # ── Tarjetas de estadísticas (Dinámicas) ──
+    stats_container = st.empty()
 
-    # ── Tarjetas de estadísticas ──
-    s = st.session_state.stats
-    c1, c2, c3, c4 = st.columns(4)
-    for col, label, key, css in [
-        (c1, "📊 Total Videos", "total", "total"),
-        (c2, "✅ Descargados", "downloaded", "downloaded"),
-        (c3, "⏭️ Saltados", "skipped", "skipped"),
-        (c4, "❌ Errores", "errors", "errors"),
-    ]:
-        col.markdown(
-            f"<div class='stat-card'><h4>{label}</h4>"
-            f"<div class='value {css}'>{s[key]}</div></div>",
-            unsafe_allow_html=True,
-        )
+    def render_stats():
+        s = st.session_state.stats
+        with stats_container.container():
+            c1, c2, c3, c4 = st.columns(4)
+            for col, label, key, css in [
+                (c1, "📊 Total Videos", "total", "total"),
+                (c2, "✅ Descargados", "downloaded", "downloaded"),
+                (c3, "⏭️ Saltados", "skipped", "skipped"),
+                (c4, "❌ Errores", "errors", "errors"),
+            ]:
+                col.markdown(
+                    f"<div class='stat-card'><h4>{label}</h4>"
+                    f"<div class='value {css}'>{s[key]}</div></div>",
+                    unsafe_allow_html=True,
+                )
+
+    render_stats()
 
     # ── Consola de log ──
     console_placeholder = st.empty()
@@ -663,6 +675,9 @@ def main():
 
             start_time = time.time()
             downloaded_count = 0
+            
+            # Para el ETA
+            videos_processed = 0
 
             for idx, video in enumerate(videos, 1):
                 if st.session_state.stop_requested:
@@ -674,9 +689,19 @@ def main():
                 video_url = video["url"]
                 video_id = extract_video_id(video_url)
 
+                # Calcular ETA
+                elapsed_so_far = time.time() - start_time
+                if videos_processed > 0:
+                    avg_time_per_video = elapsed_so_far / videos_processed
+                    remaining_videos = total - videos_processed
+                    eta_seconds = int(avg_time_per_video * remaining_videos)
+                    eta_str = f" | ETA: {datetime.timedelta(seconds=eta_seconds)}"
+                else:
+                    eta_str = " | ETA: Calculando..."
+
                 progress_bar.progress(
                     idx / total,
-                    text=f"Procesando {idx}/{total}: {video_title[:60]}...",
+                    text=f"Procesando {idx}/{total}: {video_title[:50]}...{eta_str}",
                 )
 
                 # Verificar si ya existe
@@ -731,6 +756,8 @@ def main():
                     log_error(video_url, f"{error_name}: {str(e)[:200]}")
                     st.session_state.stats["errors"] += 1
 
+                videos_processed += 1
+                render_stats()  # Actualiza los números brillantes en tiempo real
                 render_console()
 
                 # Anti-ban: delay entre descargas
@@ -766,7 +793,8 @@ def main():
 
         finally:
             st.session_state.running = False
-
+            # Forzar actualización de botones (quita el disabled de "Iniciar")
+            st.rerun()
 
 if __name__ == "__main__":
     main()
