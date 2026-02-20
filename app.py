@@ -423,9 +423,12 @@ def main():
         <style>
         .stApp {background-color: #f8fafc;}
         
-        /* Ocultar el texto de ayuda arriba a la derecha de Streamlit (opcional) */
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
+        /* Ocultar el header nativo de Streamlit (Deploy, Options, Stop menu) */
+        [data-testid="stHeader"] {visibility: hidden; height: 0px;}
+        [data-testid="stToolbar"] {visibility: hidden; height: 0px;}
+        [data-testid="stAppDeployButton"] {visibility: hidden; height: 0px;}
+        #MainMenu {visibility: hidden; height: 0px;}
+        footer {visibility: hidden; height: 0px;}
 
         .stat-card {
             background: #ffffff;
@@ -796,17 +799,21 @@ def main():
                 render_stats()  # Actualiza los números brillantes en tiempo real
                 render_console()
 
-                # Anti-ban: delay entre descargas
+                # Anti-ban: delay entre descargas sin bloquear la interfaz
                 if idx < total and not st.session_state.stop_requested:
                     # Pausa larga periódica
                     if downloaded_count > 0 and downloaded_count % long_pause_every == 0:
                         pause = random.uniform(long_pause_min, long_pause_max)
                         add_log(f"   ☕ Pausa larga de {pause:.0f}s (cada {long_pause_every} videos)...")
                         render_console()
-                        time.sleep(pause)
+                        # Bucle de espera no bloqueante en incrementos de 0.1s
+                        for _ in range(int(pause * 10)):
+                            time.sleep(0.1)
                     else:
                         delay = random.uniform(delay_min, delay_max)
-                        time.sleep(delay)
+                        # Bucle de espera no bloqueante
+                        for _ in range(int(delay * 10)):
+                            time.sleep(0.1)
 
             # ── Resumen final ──
             elapsed = time.time() - start_time
