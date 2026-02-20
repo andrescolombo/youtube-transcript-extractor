@@ -421,27 +421,63 @@ def main():
     st.markdown(
         """
         <style>
-        .stApp {background-color: #0b0f19;}
+        .stApp {background-color: #f8fafc;}
+        
+        /* Ocultar el texto de ayuda arriba a la derecha de Streamlit (opcional) */
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+
         .stat-card {
-            background: linear-gradient(135deg, #1e293b, #0f172a);
+            background: #ffffff;
             padding: 24px; border-radius: 16px; text-align: center;
-            border: 1px solid #334155;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            transition: transform 0.2s ease-in-out;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
-        .stat-card:hover { transform: translateY(-2px); }
-        .stat-card h4 {color: #94a3b8; font-size: 0.9rem; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;}
+        .stat-card:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .stat-card h4 {color: #64748b; font-size: 0.9rem; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;}
         .stat-card .value {font-size: 2.2rem; font-weight: 800; font-family: 'Inter', sans-serif;}
-        .stat-card .value.total {color: #38bdf8;}
-        .stat-card .value.downloaded {color: #4ade80;}
-        .stat-card .value.skipped {color: #fbbf24;}
-        .stat-card .value.errors {color: #f87171;}
+        .stat-card .value.total {color: #0284c7;}
+        .stat-card .value.downloaded {color: #16a34a;}
+        .stat-card .value.skipped {color: #d97706;}
+        .stat-card .value.errors {color: #dc2626;}
         .console-box {
-            background: #020617; border: 1px solid #1e293b; border-radius: 12px;
+            background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 12px;
             padding: 16px; font-family: 'Cascadia Code', 'Fira Code', monospace;
-            font-size: 0.85rem; color: #e2e8f0; max-height: 400px;
+            font-size: 0.85rem; color: #334155; max-height: 400px;
             overflow-y: auto; white-space: pre-wrap; line-height: 1.6;
             box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+        }
+        
+        /* Ajustar el texto global del sidebar (fondo oscuro manual) */
+        [data-testid="stSidebar"] {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+        }
+        [data-testid="stSidebar"] h1, 
+        [data-testid="stSidebar"] h2, 
+        [data-testid="stSidebar"] h3, 
+        [data-testid="stSidebar"] p, 
+        [data-testid="stSidebar"] div,
+        [data-testid="stSidebar"] label,
+        [data-testid="stSidebar"] .stMarkdown {
+            color: #f8fafc !important;
+        }
+        
+        /* Ajustar inputs en el sidebar para que se vean bien sobre fondo oscuro */
+        [data-testid="stSidebar"] input,
+        [data-testid="stSidebar"] div[data-baseweb="input"] {
+            background-color: #1e293b !important;
+            color: #f1f5f9 !important;
+            border-color: #334155 !important;
+        }
+        
+        /* Ajustar el slider text en el sidebar */
+        [data-testid="stSidebar"] .stSlider span {
+            color: #f8fafc !important;
         }
         </style>
         """,
@@ -450,10 +486,10 @@ def main():
 
     # ── Título ──
     st.markdown(
-        "<h1 style='text-align:center;'>"
-        "📝 <span style='color:#ff4b4b;'>YouTube Transcript Extractor</span>"
+        "<h1 style='text-align:center; color: #0f172a; margin-bottom: 0px; padding-bottom: 0px;'>"
+        "📝 <span style='color:#ef4444;'>YouTube Transcript Extractor</span>"
         "</h1>"
-        "<p style='text-align:center; color:#888;'>"
+        "<p style='text-align:center; color:#64748b; margin-top: 5px; font-size: 1.1rem;'>"
         "Descarga transcripciones masivas de videos individuales o canales completos"
         "</p>",
         unsafe_allow_html=True,
