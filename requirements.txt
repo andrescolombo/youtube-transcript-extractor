@@ -1,0 +1,9 @@
+streamlit>=1.30.0
+youtube-transcript-api>=0.6.1
+yt-dlp>=2024.1.0
+# Cliente con huella TLS/HTTP2 de Chrome; reduce bloqueos 429 en timedtext
+curl_cffi>=0.5.0
+# Cargar cookies desde Brave/Chrome/Edge (misma sesión que el navegador)
+browser-cookie3>=0.19.0
+# Tests
+pytest>=7.0.0

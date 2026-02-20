@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+venv/
+env/
+.env
+.venv
+ENV/
+
+# Archivos de Streamlit / Caché
+.streamlit/
+.pytest_cache/
+
+# Archivos propios de la app
+descargas/
+cookies.txt
+
+# VS Code / IDEs
+.vscode/
+.idea/
+
+# Sistema Operativo
+.DS_Store
+Thumbs.db
